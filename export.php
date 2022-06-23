@@ -92,25 +92,69 @@ if(isset($_POST["Import"])){
         $area_name[] = $areaname;
      }
     
-     
+
      print_r(array_unique($uid));
      print_r(array_unique($area_name));
+     echo "---------------------------";
 
+     $arraytotaltime = array();
      foreach(array_unique($uid) as $value){
 
         foreach(array_unique($area_name) as $varea){
-      echo $sqlgroup = "SELECT count(ts_total_time) FROM timesheet WHERE unid = ".$value." AND area_name = ".$varea.";
-      while($row = mysqli_fetch_assoc($sqlgroup)) {
-        print_r($row);
+          if($varea=='') continue;
+          $ttime = array();
+       $sqlgroup = "SELECT (ts_total_time) FROM timesheet WHERE unid = '$value' AND area_name = '$varea'  AND ts_access_level NOT IN ('WEP','Apprentice')";
+       $resultg = mysqli_query($con, $sqlgroup);  
+
+      while($row = mysqli_fetch_assoc($resultg)) {
+
+        $ttime[] = $row['ts_total_time'];
       }
+      $arraytotaltime[$value][$varea] = array_sum($ttime);
 
         }
      }
+     print_r($arraytotaltime);
 
-    //  $sqlgroup = "SELECT DISTINCT unid FROM timesheet";
-    //  $resultg = mysqli_query($con, $sqlgroup);  
- 
-    // $result2 =  mysqli_fetch_assoc($resultg);
+     // restauranr tip
+     $total_tip = 1030;
+     $rtip = array();
+     $total_rastorant_hour = array();
+     $total_kitchen_hour = array();
+
+     foreach($arraytotaltime as $data=>$tvalue){
+        foreach($tvalue as $rkey => $totaltieme){
+          
+          if($totaltieme>0 && $rkey == "Restaurant Floor"){
+
+            $total_rastorant_hour[]= ($totaltieme);
+
+          }
+
+        }
+
+     // print_r($data);
+
+
+     }
+     // totala restaurent tip
+    $totoalrast_sum = array_sum($total_rastorant_hour);
+     echo $tip = round($total_tip*2/3,2)/$totoalrast_sum;
+    // NOT IN ('WEP','Apprentice')
+
+      $sql = "SELECT DISTINCT unid FROM timesheet WHERE area_name ='Kitchen' AND ts_access_level NOT IN ('WEP','Apprentice')";
+     $kitchen_result = mysqli_query($con, $sql);  
+     $total_dk_emp = array();
+     while($row = mysqli_fetch_assoc($kitchen_result)) {
+      $total_dk_emp[] = $row['unid'];
+     }
+echo "<br>";
+     print_r(count($total_dk_emp));
+     echo "<br>";
+
+     echo $tip_kitchen = round($total_tip*1/3,2)/count($total_dk_emp);
+     // kitche tip 
+
 
 } else {
      echo "you have no records";
