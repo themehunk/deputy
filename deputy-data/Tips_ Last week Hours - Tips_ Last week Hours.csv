@@ -1,0 +1,58 @@
+Timesheet Date,First Name,Last Name,Area Name,Timesheet Cost,Timesheet Total Time,Time Approved,Access Level Name
+2022-06-13,James,Rahim,Kitchen,$142.70,4.38,TRUE, Junior (19yrs or under)
+2022-06-14,Hayman,Hong,Kitchen,$176.58,8.13,TRUE,Employee
+2022-06-15,James,Rahim,Kitchen,$84.38,5.18,TRUE, Junior (19yrs or under)
+2022-06-16,Samantha,Bailey,Kitchen,$80.72,6.2,TRUE,Apprentice
+2022-06-16,Hannah,Stewart,Kitchen,$79.68,6.12,TRUE,Apprentice
+2022-06-16,Hayman,Hong,Kitchen,$129.23,5.95,TRUE,Employee
+2022-06-17,Hayman,Hong,Kitchen,$156.38,7.2,TRUE,Employee
+2022-06-17,James,Rahim,Kitchen,$99.04,6.08,TRUE, Junior (19yrs or under)
+2022-06-18,Aleeshia Keila,Alegado,Kitchen,$214.38,6.58,TRUE,Employee
+2022-06-18,Samantha,Bailey,Kitchen,$75.78,5.82,TRUE,Apprentice
+2022-06-18,Lucia,Bennett,Kitchen,$49.70,3.05,TRUE, Junior (19yrs or under)
+2022-06-18,James,Rahim,Kitchen,$149.93,7.67,TRUE, Junior (19yrs or under)
+2022-06-19,Hayman,Hong,Kitchen,$254.12,7.8,TRUE,Employee
+2022-06-19,James,Rahim,Kitchen,$191.96,9.82,TRUE, Junior (19yrs or under)
+2022-06-19,Ethan,Hose,Kitchen,$105.92,6.5,TRUE, Junior (19yrs or under)
+2022-06-15,Hayman,Hong,Kitchen,,8.5,FALSE,Employee
+2022-06-17,Aleeshia Keila,Alegado,Kitchen,,6.5,FALSE,Employee
+2022-06-13,David,Chatelot,Lower Ground Cafe,,8.45,TRUE,Employee
+2022-06-13,Harry,Morgan,Lower Ground Cafe,$275.14,5.63,TRUE,Employee
+2022-06-13,Chloe,Taylor,Lower Ground Cafe,$257.26,6.77,TRUE, Junior (19yrs or under)
+2022-06-14,David,Chatelot,Lower Ground Cafe,,8.6,TRUE,Employee
+2022-06-15,David,Chatelot,Lower Ground Cafe,,8.62,TRUE,Employee
+2022-06-16,David,Chatelot,Lower Ground Cafe,,8.32,TRUE,Employee
+2022-06-17,David,Chatelot,Lower Ground Cafe,,8.43,TRUE,Employee
+2022-06-17,Jaylie,Doan,Lower Ground Cafe,,1,FALSE,WEP
+2022-06-18,Harry,Morgan,Lower Ground Cafe,$215.30,7.93,TRUE,Employee
+2022-06-18,freya,buxton,Lower Ground Cafe,$127.68,5.6,TRUE, Junior (19yrs or under)
+2022-06-18,Luka,Dagarin,Lower Ground Cafe,$113.96,5.83,TRUE, Junior (19yrs or under)
+2022-06-19,freya,buxton,Lower Ground Cafe,$132.70,5.82,TRUE, Junior (19yrs or under)
+2022-06-19,Harry,Morgan,Lower Ground Cafe,$255.75,7.85,TRUE,Employee
+2022-06-19,tom,roberts,Lower Ground Cafe,$89.30,5.48,TRUE, Junior (19yrs or under)
+2022-06-19,Luka,Dagarin,Lower Ground Cafe,$116.31,5.95,TRUE, Junior (19yrs or under)
+2022-06-18,tom,roberts,Lower Ground Cafe,,5.5,FALSE, Junior (19yrs or under)
+2022-06-15,Rodolfo,Andrade,Management,$143.41,5.7,TRUE,Location Manager
+2022-06-16,Rodolfo,Andrade,Management,$140.14,5.57,TRUE,Location Manager
+2022-06-17,Rodolfo,Andrade,Management,$239.77,9.53,TRUE,Location Manager
+2022-06-18,Rodolfo,Andrade,Management,$432.44,13.75,TRUE,Location Manager
+2022-06-19,Rodolfo,Andrade,Management,$222.67,5.9,TRUE,Location Manager
+2022-06-17,Chloe,Taylor,Restaurant Floor,$185.48,6.28,TRUE, Junior (19yrs or under)
+2022-06-17,Toby,Robertson,Restaurant Floor,$185.48,6.28,TRUE, Junior (19yrs or under)
+2022-06-17,Wednesday,Sheedy,Restaurant Floor,$155.78,5.4,TRUE, Junior (19yrs or under)
+2022-06-17,freya,buxton,Restaurant Floor,$117.13,4.07,TRUE, Junior (19yrs or under)
+2022-06-17,Laila,Rahim,Restaurant Floor,$57.64,4.07,TRUE, Junior (19yrs or under)
+2022-06-18,Chloe,Taylor,Restaurant Floor,$282.47,8.67,TRUE, Junior (19yrs or under)
+2022-06-18,William,Ostergar,Restaurant Floor,,20.68,FALSE,WEP
+2022-06-18,Toby,Robertson,Restaurant Floor,$262.92,8.07,TRUE, Junior (19yrs or under)
+2022-06-18,Wednesday,Sheedy,Restaurant Floor,$254.82,7.82,TRUE, Junior (19yrs or under)
+2022-06-18,Susannah,Paget,Restaurant Floor,$104.97,5.37,TRUE, Junior (19yrs or under)
+2022-06-18,Sam,Roberts,Restaurant Floor,$128.04,6.55,TRUE, Junior (19yrs or under)
+2022-06-19,Wednesday,Sheedy,Restaurant Floor,$191.61,5.88,TRUE, Junior (19yrs or under)
+2022-06-19,Susannah,Paget,Restaurant Floor,$111.81,5.72,TRUE, Junior (19yrs or under)
+2022-06-19,Chloe,Taylor,Restaurant Floor,$151.80,5.8,TRUE, Junior (19yrs or under)
+2022-06-19,Sam,Roberts,Restaurant Floor,$98.33,5.03,TRUE, Junior (19yrs or under)
+2022-06-19,Laila,Rahim,Restaurant Floor,$79.52,4.88,TRUE, Junior (19yrs or under)
+2022-06-19,Robert,Townsend,Restaurant Floor,$78.71,4.83,TRUE, Junior (19yrs or under)
+2022-06-13,Hayman,Hong,,$165.07,7.6,TRUE,Employee
+2022-06-17,Hannah,Stewart,,$84.63,6.5,TRUE,Apprentice
