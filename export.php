@@ -1,3 +1,27 @@
+<style>
+#customers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#customers td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+</style>
 <?php
 function getdb(){
     $servername = "localhost";
@@ -69,18 +93,111 @@ if(isset($_POST["Import"])){
   }   
 
 
+// Time each employee spent in each Area Name (e.g Freya, how many hours did she spend in each Restaurant Floor, Lower Ground Cafe etc)
+function time_each_emp_area($uid,$area_name){
+  $con = getdb();
+  print_r($area_name);
+
+  $arraytotaltime = array();
+  foreach(array_unique($uid) as $value=>$fullname){
+
+     foreach(array_unique($area_name) as $varea){
+       if($varea=='') continue;
+       $ttime = array();
+    $sqlgroup = "SELECT (ts_total_time) FROM timesheet WHERE unid = '$value' AND area_name = '$varea'  AND ts_access_level NOT IN ('WEP','Apprentice')";
+    $resultg = mysqli_query($con, $sqlgroup);  
+
+   while($row = mysqli_fetch_assoc($resultg)) {
+
+     $ttime[] = $row['ts_total_time'];
+   }
+   $arraytotaltime[$value][$varea] = array_sum($ttime);
+
+     }
+  }
+          echo "<h3>(a)Time each employee spent in each Area Name (e.g Freya, how many hours did she spend in each Restaurant Floor, Lower Ground Cafe etc)
+          </h3>";
+          $table = "<table id='customers'><thead>";
+          $table .="<tr>
+                <th> Area Name </th>";
+
+                foreach($area_name as $arname){
+                  $table .="<th> {$arname} </th>";
+                }
+
+                $table .="</tr></thead><tbody>";
+          foreach( $arraytotaltime as $key=>$value ){
+
+            $table .= "<tr>";
+            $table .= "<td>{$uid[$key]}</td>";
+
+            foreach($value as $area => $hour){
+              $table .= "<td>{$hour}</td>";
+            }
+            $table .= "</tr>";
+          }
+
+        $table .= "</tbody></table>";
+
+        echo $table;
+
+  return $arraytotaltime;
+}
+
+// restaurent tip 
+function restaurant_tip($arraytotaltime,$total_tip){
+  $con = getdb();
+  $rtip = array();
+  $total_rastorant_hour = array();
+  $total_kitchen_hour = array();
+
+  foreach($arraytotaltime as $data=>$tvalue){
+     foreach($tvalue as $rkey => $totaltieme){
+       
+       if($totaltieme>0 && $rkey == "Restaurant Floor"){
+
+         $total_rastorant_hour[]= ($totaltieme);
+
+       }
+
+     }
+
+  // print_r($data);
+
+
+  }
+  // totala restaurent tip
+ $totoalrast_sum = array_sum($total_rastorant_hour);
+ echo $tip = round($total_tip*2/3,2)/$totoalrast_sum;
+}
+
+// Kitchen tip 
+function kitchen_tip($total_tip){
+
+  $con = getdb();
+
+  $sql = "SELECT DISTINCT unid FROM timesheet WHERE area_name ='Kitchen' AND ts_access_level NOT IN ('WEP','Apprentice')";
+  $kitchen_result = mysqli_query($con, $sql);  
+  $total_dk_emp = array();
+  while($row = mysqli_fetch_assoc($kitchen_result)) {
+   $total_dk_emp[] = $row['unid'];
+  }
+echo "<br>";
+  print_r(count($total_dk_emp));
+  echo "<br>";
+
+  echo $tip_kitchen = round($total_tip*1/3,2)/count($total_dk_emp);
+}
 
 
 
+
+// get all records
   function get_all_records(){
     $con = getdb();
     $Sql = "SELECT * FROM timesheet";
     $result = mysqli_query($con, $Sql);  
-//GROUP BY area_name
 
-  //  print_r($result2);
-
-    
     $uid = array();
     $area_name = array();
     
@@ -88,15 +205,20 @@ if(isset($_POST["Import"])){
      while($row = mysqli_fetch_assoc($result)) {
             $name = $row['unid'];
             $areaname = $row['area_name'];
-        $uid[]=$name;
+        $uid[$name]=$row['fnam'].' '. $row['lanme'];
         $area_name[] = $areaname;
      }
     
 
      print_r(array_unique($uid));
-     print_r(array_unique($area_name));
      echo "---------------------------";
 
+     $area_name = array_filter(array_unique($area_name));
+
+     $total_tip = 1030;
+     $arraytotaltime = time_each_emp_area($uid,$area_name);
+
+     /*** 
      $arraytotaltime = array();
      foreach(array_unique($uid) as $value){
 
@@ -115,8 +237,10 @@ if(isset($_POST["Import"])){
         }
      }
      print_r($arraytotaltime);
-
+  ******************************************/
      // restauranr tip
+     restaurant_tip($arraytotaltime,$total_tip);
+  /*** 
      $total_tip = 1030;
      $rtip = array();
      $total_rastorant_hour = array();
@@ -140,9 +264,14 @@ if(isset($_POST["Import"])){
      // totala restaurent tip
     $totoalrast_sum = array_sum($total_rastorant_hour);
      echo $tip = round($total_tip*2/3,2)/$totoalrast_sum;
-    // NOT IN ('WEP','Apprentice')
 
-      $sql = "SELECT DISTINCT unid FROM timesheet WHERE area_name ='Kitchen' AND ts_access_level NOT IN ('WEP','Apprentice')";
+***/
+
+     
+    // NOT IN ('WEP','Apprentice')
+    kitchen_tip($total_tip);
+ /*****
+   $sql = "SELECT DISTINCT unid FROM timesheet WHERE area_name ='Kitchen' AND ts_access_level NOT IN ('WEP','Apprentice')";
      $kitchen_result = mysqli_query($con, $sql);  
      $total_dk_emp = array();
      while($row = mysqli_fetch_assoc($kitchen_result)) {
@@ -154,6 +283,8 @@ echo "<br>";
 
      echo $tip_kitchen = round($total_tip*1/3,2)/count($total_dk_emp);
      // kitche tip 
+
+     **/
 
 
 } else {
