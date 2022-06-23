@@ -96,7 +96,7 @@ if(isset($_POST["Import"])){
 // Time each employee spent in each Area Name (e.g Freya, how many hours did she spend in each Restaurant Floor, Lower Ground Cafe etc)
 function time_each_emp_area($uid,$area_name){
   $con = getdb();
-  print_r($area_name);
+ // print_r($area_name);
 
   $arraytotaltime = array();
   foreach(array_unique($uid) as $value=>$fullname){
@@ -168,7 +168,10 @@ function restaurant_tip($arraytotaltime,$total_tip){
   }
   // totala restaurent tip
  $totoalrast_sum = array_sum($total_rastorant_hour);
- echo $tip = round($total_tip*2/3,2)/$totoalrast_sum;
+  $tip = round(round($total_tip*2/3,2)/$totoalrast_sum,2);
+  echo "<h3>(d) 1 Restaurant floor tip - (Total tip amount * 2/3-variable)/ (Total of all hours attributed to Restaurant Floor) = Tip per hour.</h3>";
+  echo "<span>Restaurant floor tip  : {$tip} tip/hour</span>";
+
 }
 
 // Kitchen tip 
@@ -182,11 +185,15 @@ function kitchen_tip($total_tip){
   while($row = mysqli_fetch_assoc($kitchen_result)) {
    $total_dk_emp[] = $row['unid'];
   }
-echo "<br>";
-  print_r(count($total_dk_emp));
-  echo "<br>";
 
-  echo $tip_kitchen = round($total_tip*1/3,2)/count($total_dk_emp);
+ $distinct_emp = count($total_dk_emp);
+
+
+   $tip_kitchen = round(round($total_tip*1/3,2)/$distinct_emp,2);
+
+  echo "<h3>(d) 1 Kitchen tip - (Total tip amount * 1/3-variable)/Number of distinct people in the kitchen - do not include WEP, Apprentice (variable)</h3>";
+  echo "<span> Kitchen tip  : {$tip_kitchen} tip/hour</span>";
+
 }
 
 
@@ -210,13 +217,12 @@ echo "<br>";
      }
     
 
-     print_r(array_unique($uid));
-     echo "---------------------------";
+     $unique_emp = array_unique($uid);
 
      $area_name = array_filter(array_unique($area_name));
 
      $total_tip = 1030;
-     $arraytotaltime = time_each_emp_area($uid,$area_name);
+     $arraytotaltime = time_each_emp_area($unique_emp,$area_name);
 
      /*** 
      $arraytotaltime = array();
