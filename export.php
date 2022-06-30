@@ -21,13 +21,34 @@
   background-color: #04AA6D;
   color: white;
 }
+
+.hours_percent{
+  width: 65%;
+}
+
+.dpwrap {
+width:90%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.dpwrap span {
+  width: 15%;
+}
 </style>
 <?php
+//include "form.php";
 function getdb(){
     $servername = "localhost";
     $username = "root";
     $password = "";
     $db = "exports";
+
+
+    // $servername = "127.0.0.1";
+    // $username = "uq1xcmwyqogdj";
+    // $password = "hbzbtbiu6vso";
+    // $db = "dbf7texqu3kunx";
     try {
        
         $conn = mysqli_connect($servername, $username, $password, $db);
@@ -60,7 +81,7 @@ if(isset($_POST["Import"])){
           while (($getData = fgetcsv($file, 10000, ",")) !== FALSE)
            {
 
-            print_r($getData);
+if($i>0){
             $name = $getData[1].$getData[2];
             $unid= strtolower($name);
 
@@ -72,7 +93,10 @@ if(isset($_POST["Import"])){
                    values ('".$unid."','".$getData[1]."','".$getData[2]."','".$getData[3]."','".$getData[0]."','".$newcost."','".$getData[5]."','".$getData[6]."','".$getData[7]."')";
                  
                  
-             //    $result = mysqli_query($con, $sql);
+             //  $result = mysqli_query($con, $sql);
+
+				}
+				$i++;
         // if(!isset($result))
         // {
         //   echo "<script type=\"text/javascript\">
@@ -96,12 +120,15 @@ if(isset($_POST["Import"])){
 // Time each employee spent in each Area Name (e.g Freya, how many hours did she spend in each Restaurant Floor, Lower Ground Cafe etc)
 function time_each_emp_area($uid,$area_name){
   $con = getdb();
- // print_r($area_name);
-
   $arraytotaltime = array();
+  $exl_data_arr = array();
+
+  $total_hours = array();
+  $i= 1;
+  $j = 0;
   foreach(array_unique($uid) as $value=>$fullname){
 
-     foreach(array_unique($area_name) as $varea){
+     foreach($area_name as $varea){
        if($varea=='') continue;
        $ttime = array();
     $sqlgroup = "SELECT (ts_total_time) FROM timesheet WHERE unid = '$value' AND area_name = '$varea'  AND ts_access_level NOT IN ('WEP','Apprentice')";
@@ -117,25 +144,59 @@ function time_each_emp_area($uid,$area_name){
   }
           echo "<h3>(a)Time each employee spent in each Area Name (e.g Freya, how many hours did she spend in each Restaurant Floor, Lower Ground Cafe etc)
           </h3>";
+
+
+          $xl_arr = array();
           $table = "<table id='customers'><thead>";
           $table .="<tr>
                 <th> Area Name </th>";
-
+                $xl_arr['Area Name']='';
                 foreach($area_name as $arname){
+                  $xl_arr[$arname] = '';
                   $table .="<th> {$arname} </th>";
                 }
-
+              
                 $table .="</tr></thead><tbody>";
           foreach( $arraytotaltime as $key=>$value ){
-
             $table .= "<tr>";
+            $xl_arr['Area Name'] = $uid[$key];
             $table .= "<td>{$uid[$key]}</td>";
-
             foreach($value as $area => $hour){
-              $table .= "<td>{$hour}</td>";
+              $class = "hv_".$i;
+              $table .= "<td><div class='dpwrap'>";
+              $table .="<span>{$hour}</span><span> &times;</span>";
+
+              $table .="<span><input class='hours_percent' id='".$class."' value='100'/></span><span>%</span>";
+              $table .="<span> =</span><span class='".$class."' ".$class."='".$hour."' area_name='".$area."' count='".$j."'>{$hour}</span>";
+
+              $table .="</div></td>";
+
+              $total_hours[$area][$i] = $hour;
+
+              $xl_arr[$area] = array('hours'=>$hour,'percent'=>100,$i=>$hour); 
+              $i++;
+
             }
+            $j++;
+            $exl_data_arr[] = $xl_arr;
             $table .= "</tr>";
           }
+          
+          // total hours calulate
+
+          $jencode = json_encode($total_hours);
+          $xlsencode = json_encode($exl_data_arr);
+
+          $table .= "<tr><td><b class='total_hours_count' total_hours='".$jencode."' xls_data = '".$xlsencode."'>Total Hours</b> </td>";
+
+
+          foreach($total_hours as $area_key => $total_h){
+            $table .= "<td class='".str_replace(' ', '',$area_key)."'  ><b>". array_sum($total_h)."</b></td>";
+
+          }
+
+          $table .= "</tr>";
+          // end
 
         $table .= "</tbody></table>";
 
@@ -144,8 +205,29 @@ function time_each_emp_area($uid,$area_name){
   return $arraytotaltime;
 }
 
+
+
+function team_hours(){
+  $con = getdb();
+$sqlgroup = "SELECT area_name, SUM(ts_total_time) as ttime FROM timesheet  WHERE ts_access_level NOT IN ('WEP','Apprentice') GROUP BY area_name";
+$resultg = mysqli_query($con, $sqlgroup);  
+$table = "<table id='customers'><thead>";
+$table .= "<tr><th>Team Name</th><th> Total Time</th></tr></thead>";
+while($row = mysqli_fetch_assoc($resultg)) {
+if($row['area_name'] !=''){
+  $table .= "<tr><td>".$row['area_name']."</td><td>".$row['ttime']."</td></tr>";
+  
+}
+}
+$table .="</table>";
+
+echo "<h3>(c)Sum of all hours for whole team in Area Name (e.g Total of all hours attributed to Restaurant Floor) - do not include WEP, Apprentice (variable)
+      </h3>";
+echo $table;
+}
+
 // restaurent tip 
-function restaurant_tip($arraytotaltime,$total_tip){
+function restaurant_tip($arraytotaltime,$total_tip,$variable){
   $con = getdb();
   $rtip = array();
   $total_rastorant_hour = array();
@@ -166,17 +248,23 @@ function restaurant_tip($arraytotaltime,$total_tip){
 
 
   }
+
+
+
+
+
   // totala restaurent tip
  $totoalrast_sum = array_sum($total_rastorant_hour);
-  $tip = round(round($total_tip*2/3,2)/$totoalrast_sum,2);
+  $tip = $total_tip*$variable/$totoalrast_sum;
+  $tip = round($tip,2);
+
   echo "<h3>(d) 1 Restaurant floor tip - (Total tip amount * 2/3-variable)/ (Total of all hours attributed to Restaurant Floor) = Tip per hour.</h3>";
   echo "<span>Restaurant floor tip  : {$tip} tip/hour</span>";
 
 }
 
 // Kitchen tip 
-function kitchen_tip($total_tip){
-
+function kitchen_tip($total_tip,$variable){
   $con = getdb();
 
   $sql = "SELECT DISTINCT unid FROM timesheet WHERE area_name ='Kitchen' AND ts_access_level NOT IN ('WEP','Apprentice')";
@@ -188,8 +276,8 @@ function kitchen_tip($total_tip){
 
  $distinct_emp = count($total_dk_emp);
 
-
-   $tip_kitchen = round(round($total_tip*1/3,2)/$distinct_emp,2);
+   $tip_kitchen = $total_tip*$variable/$distinct_emp;
+   $tip_kitchen = round($tip_kitchen,2);
 
   echo "<h3>(d) 1 Kitchen tip - (Total tip amount * 1/3-variable)/Number of distinct people in the kitchen - do not include WEP, Apprentice (variable)</h3>";
   echo "<span> Kitchen tip  : {$tip_kitchen} tip/hour</span>";
@@ -197,11 +285,23 @@ function kitchen_tip($total_tip){
 }
 
 
-
-
 // get all records
   function get_all_records(){
+//print_r($_POST);
+     $total_tip = 1030;
+     $rvar = 2/3;
+     $kvar = 1/3;
+
+if(isset($_POST['get_data'])){
+ $total_tip = (isset($_POST['tipamount']) && $_POST['tipamount'] != '')?$_POST['tipamount']:$total_tip;
+ $rvar= (isset($_POST['rvar']) && $_POST['rvar'] != '')?$_POST['rvar']:$rvar;
+echo $kvar= (isset($_POST['kvar']) && $_POST['kvar'] != '')?$_POST['kvar']:$kvar;
+
+}
+
+
     $con = getdb();
+
     $Sql = "SELECT * FROM timesheet";
     $result = mysqli_query($con, $Sql);  
 
@@ -218,11 +318,10 @@ function kitchen_tip($total_tip){
     
 
      $unique_emp = array_unique($uid);
-
      $area_name = array_filter(array_unique($area_name));
 
-     $total_tip = 1030;
      $arraytotaltime = time_each_emp_area($unique_emp,$area_name);
+	  team_hours();
 
      /*** 
      $arraytotaltime = array();
@@ -245,7 +344,8 @@ function kitchen_tip($total_tip){
      print_r($arraytotaltime);
   ******************************************/
      // restauranr tip
-     restaurant_tip($arraytotaltime,$total_tip);
+
+     restaurant_tip($arraytotaltime,$total_tip,$rvar);
   /*** 
      $total_tip = 1030;
      $rtip = array();
@@ -275,7 +375,7 @@ function kitchen_tip($total_tip){
 
      
     // NOT IN ('WEP','Apprentice')
-    kitchen_tip($total_tip);
+    kitchen_tip($total_tip,$kvar);
  /*****
    $sql = "SELECT DISTINCT unid FROM timesheet WHERE area_name ='Kitchen' AND ts_access_level NOT IN ('WEP','Apprentice')";
      $kitchen_result = mysqli_query($con, $sql);  
@@ -299,3 +399,54 @@ echo "<br>";
 }
 
 get_all_records();
+
+
+?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+     $total_hours_json = JSON.parse($('.total_hours_count').attr( 'total_hours' ));
+     $xls_data_json = JSON.parse($('.total_hours_count').attr( 'xls_data' ));
+console.log($xls_data_json);
+
+jQuery(".hours_percent").on("input", function() {
+   $vclass = $(this).attr('id');
+   $percent = $(this).val();   // how many percent
+   $total_hours = parseFloat($('.'+$vclass).attr( $vclass ));
+  $after_perc_hours = $total_hours * $percent / 100;   // after percent change data get
+   $('.'+$vclass).text($after_perc_hours);
+   $area_name = $('.'+$vclass).attr( 'area_name' ); // area name
+
+   
+
+
+   $count = $('.'+$vclass).attr( 'count' );  // index xl array
+
+  
+   $jshon_index = $vclass.replace(/[^\d.-]/g, '');
+  // only fron data change calculation
+   $total_hours_json[$area_name][$jshon_index] = $after_perc_hours;
+   var update_ariables  = {};
+   $.each($total_hours_json, function (index, value) {
+    update_ariables[index] = 0;
+         $.each(value, function (index1, value1) {
+          update_ariables[index] += value1;
+
+        });
+
+  });
+  $('.'+$area_name.replace(/\s/g, '')+'  b').text(update_ariables[$area_name]);
+
+
+
+
+  // Xls json data update
+   $xls_data_json[$count][$area_name][$jshon_index] = $after_perc_hours;
+   $xls_data_json[$count][$area_name]['percent'] = $percent;
+
+   
+   console.log($xls_data_json);
+
+
+});
+</script>
