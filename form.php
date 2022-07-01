@@ -1,19 +1,10 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" crossorigin="anonymous">
  
-
- <?php
- 
-echo $var = ($_POST['kvar']);
-$tip = 1030;
-echo "<br>";
-echo $toal = 1030*$var;
-
- ?>
  <form class="form-horizontal" action="#" method="post" name="get_excel">
                     <fieldset>
                         <!-- Form Name -->
-                        <legend>Get Data</legend>
+                        <legend>Custom Data Add</legend>
                         <!-- File Button -->
                         <div class="form-group">
                             <label class="col-md-4 control-label" for="tipamount">Total Tip Amount</label>

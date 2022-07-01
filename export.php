@@ -35,6 +35,25 @@ width:90%;
 .dpwrap span {
   width: 15%;
 }
+.export_button {
+    width: 100%;
+    text-align: center;
+    margin-top: 50px;
+}
+button#button {
+    background: #0d54f1;
+    border: none;
+    padding: 10px 45px;
+    font-size: 20px;
+    color: #fff;
+}
+button#button:hover{
+  background: #1d64ff;
+
+}
+hr.hrline {
+    margin-top: 50px;
+}
 </style>
 <?php
 //include "form.php";
@@ -81,7 +100,7 @@ if(isset($_POST["Import"])){
           while (($getData = fgetcsv($file, 10000, ",")) !== FALSE)
            {
 
-if($i>0){
+        if($i>0){
             $name = $getData[1].$getData[2];
             $unid= strtolower($name);
 
@@ -173,7 +192,7 @@ function time_each_emp_area($uid,$area_name){
 
               $total_hours[$area][$i] = $hour;
 
-              $xl_arr[$area] = array('hours'=>$hour,'percent'=>100,$i=>$hour); 
+              $xl_arr[$area] = array('hours'=>$hour,'percent'=>100,$i=>$hour,"final"=>$i); 
               $i++;
 
             }
@@ -251,8 +270,6 @@ function restaurant_tip($arraytotaltime,$total_tip,$variable){
 
 
 
-
-
   // totala restaurent tip
  $totoalrast_sum = array_sum($total_rastorant_hour);
   $tip = $total_tip*$variable/$totoalrast_sum;
@@ -321,76 +338,26 @@ echo $kvar= (isset($_POST['kvar']) && $_POST['kvar'] != '')?$_POST['kvar']:$kvar
      $area_name = array_filter(array_unique($area_name));
 
      $arraytotaltime = time_each_emp_area($unique_emp,$area_name);
-	  team_hours();
+     ?>
+<div class="export_button">
+<button id="button" value="xls">Export</button>
 
-     /*** 
-     $arraytotaltime = array();
-     foreach(array_unique($uid) as $value){
+<a href="javascript:void(0)" id="dlbtn" style="display:none;">
+    <button type="button" id="mine">Export</button>
+</a>
+</div>
+<?php
+include_once "form.php";
 
-        foreach(array_unique($area_name) as $varea){
-          if($varea=='') continue;
-          $ttime = array();
-       $sqlgroup = "SELECT (ts_total_time) FROM timesheet WHERE unid = '$value' AND area_name = '$varea'  AND ts_access_level NOT IN ('WEP','Apprentice')";
-       $resultg = mysqli_query($con, $sqlgroup);  
 
-      while($row = mysqli_fetch_assoc($resultg)) {
+	  //team_hours();
 
-        $ttime[] = $row['ts_total_time'];
-      }
-      $arraytotaltime[$value][$varea] = array_sum($ttime);
-
-        }
-     }
-     print_r($arraytotaltime);
-  ******************************************/
      // restauranr tip
 
      restaurant_tip($arraytotaltime,$total_tip,$rvar);
-  /*** 
-     $total_tip = 1030;
-     $rtip = array();
-     $total_rastorant_hour = array();
-     $total_kitchen_hour = array();
-
-     foreach($arraytotaltime as $data=>$tvalue){
-        foreach($tvalue as $rkey => $totaltieme){
-          
-          if($totaltieme>0 && $rkey == "Restaurant Floor"){
-
-            $total_rastorant_hour[]= ($totaltieme);
-
-          }
-
-        }
-
-     // print_r($data);
-
-
-     }
-     // totala restaurent tip
-    $totoalrast_sum = array_sum($total_rastorant_hour);
-     echo $tip = round($total_tip*2/3,2)/$totoalrast_sum;
-
-***/
-
-     
+ 
     // NOT IN ('WEP','Apprentice')
     kitchen_tip($total_tip,$kvar);
- /*****
-   $sql = "SELECT DISTINCT unid FROM timesheet WHERE area_name ='Kitchen' AND ts_access_level NOT IN ('WEP','Apprentice')";
-     $kitchen_result = mysqli_query($con, $sql);  
-     $total_dk_emp = array();
-     while($row = mysqli_fetch_assoc($kitchen_result)) {
-      $total_dk_emp[] = $row['unid'];
-     }
-echo "<br>";
-     print_r(count($total_dk_emp));
-     echo "<br>";
-
-     echo $tip_kitchen = round($total_tip*1/3,2)/count($total_dk_emp);
-     // kitche tip 
-
-     **/
 
 
 } else {
@@ -402,12 +369,47 @@ get_all_records();
 
 
 ?>
+<hr class="hrline">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
      $total_hours_json = JSON.parse($('.total_hours_count').attr( 'total_hours' ));
      $xls_data_json = JSON.parse($('.total_hours_count').attr( 'xls_data' ));
-console.log($xls_data_json);
+
+     var update_ariables  = {};
+   $.each($total_hours_json, function (index, value) {
+    update_ariables[index] = 0;
+         $.each(value, function (index1, value1) {
+          update_ariables[index] += value1;
+
+        });
+
+  });
+
+  //export_data($xls_data_json,update_ariables);
+
+  function export_data($xls_data_json,update_ariables){
+    $("#button").click(function(){
+
+        $.ajax({
+            type: "POST",
+            url: 'xls.php',
+            data: {"xls":$xls_data_json,'total':update_ariables},
+            success: function(response)
+            {
+
+
+              var file = new Blob([response], {type: 'text/xls'});
+				    dlbtn.href = URL.createObjectURL(file);
+				     dlbtn.download = 'myfile.xls';
+          $( "#mine").click();
+                  //console.log(response);
+           }
+       });
+      });
+
+  }
 
 jQuery(".hours_percent").on("input", function() {
    $vclass = $(this).attr('id');
@@ -417,7 +419,7 @@ jQuery(".hours_percent").on("input", function() {
    $('.'+$vclass).text($after_perc_hours);
    $area_name = $('.'+$vclass).attr( 'area_name' ); // area name
 
-   
+
 
 
    $count = $('.'+$vclass).attr( 'count' );  // index xl array
@@ -426,7 +428,7 @@ jQuery(".hours_percent").on("input", function() {
    $jshon_index = $vclass.replace(/[^\d.-]/g, '');
   // only fron data change calculation
    $total_hours_json[$area_name][$jshon_index] = $after_perc_hours;
-   var update_ariables  = {};
+   //var update_ariables  = {};
    $.each($total_hours_json, function (index, value) {
     update_ariables[index] = 0;
          $.each(value, function (index1, value1) {
@@ -444,9 +446,22 @@ jQuery(".hours_percent").on("input", function() {
    $xls_data_json[$count][$area_name][$jshon_index] = $after_perc_hours;
    $xls_data_json[$count][$area_name]['percent'] = $percent;
 
-   
-   console.log($xls_data_json);
+
+if($area_name === "Restaurant Floor"){
+  var res_tip = (1030*2/3)/update_ariables[$area_name];
+  console.log(res_tip);
+
+}else if($area_name === "Kitchen"){
+  var kitchen_tip = (1030*1/3)/5;
+  console.log(kitchen_tip);
+
+}
 
 
 });
+export_data($xls_data_json,update_ariables);
+
+
+
+
 </script>
