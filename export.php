@@ -1,61 +1,5 @@
-<style>
-#customers {
-  font-family: Arial, Helvetica, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-#customers td, #customers th {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-#customers tr:nth-child(even){background-color: #f2f2f2;}
-
-#customers tr:hover {background-color: #ddd;}
-
-#customers th {
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #04AA6D;
-  color: white;
-}
-
-.hours_percent{
-  width: 65%;
-}
-
-.dpwrap {
-width:90%;
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.dpwrap span {
-  width: 15%;
-}
-.export_button {
-    width: 100%;
-    text-align: center;
-    margin-top: 50px;
-}
-button#button {
-    background: #0d54f1;
-    border: none;
-    padding: 10px 45px;
-    font-size: 20px;
-    color: #fff;
-}
-button#button:hover{
-  background: #1d64ff;
-
-}
-hr.hrline {
-    margin-top: 50px;
-}
-</style>
 <?php
+include_once "header.php";
 //include "form.php";
 function getdb(){
     $servername = "localhost";
@@ -275,8 +219,7 @@ function restaurant_tip($arraytotaltime,$total_tip,$variable){
   $tip = $total_tip*$variable/$totoalrast_sum;
   $tip = round($tip,2);
 
-  echo "<h3>(d) 1 Restaurant floor tip - (Total tip amount * 2/3-variable)/ (Total of all hours attributed to Restaurant Floor) = Tip per hour.</h3>";
-  echo "<span>Restaurant floor tip  : {$tip} tip/hour</span>";
+  echo "<h3>Restaurant floor tip  : <span id='restaurent_tip'><b>{$tip}</b></span> tip/hour</h3>";
 
 }
 
@@ -296,8 +239,8 @@ function kitchen_tip($total_tip,$variable){
    $tip_kitchen = $total_tip*$variable/$distinct_emp;
    $tip_kitchen = round($tip_kitchen,2);
 
-  echo "<h3>(d) 1 Kitchen tip - (Total tip amount * 1/3-variable)/Number of distinct people in the kitchen - do not include WEP, Apprentice (variable)</h3>";
-  echo "<span> Kitchen tip  : {$tip_kitchen} tip/hour</span>";
+  echo " <h3> Kitchen Tip   : <span id='kitchen_tip' kitchen_dist = '".$distinct_emp."'> <b>{$tip_kitchen}</b></span> tip/hour</h3>";
+
 
 }
 
@@ -367,101 +310,5 @@ include_once "form.php";
 
 get_all_records();
 
-
+include_once "footer.php";
 ?>
-<hr class="hrline">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-<script>
-     $total_hours_json = JSON.parse($('.total_hours_count').attr( 'total_hours' ));
-     $xls_data_json = JSON.parse($('.total_hours_count').attr( 'xls_data' ));
-
-     var update_ariables  = {};
-   $.each($total_hours_json, function (index, value) {
-    update_ariables[index] = 0;
-         $.each(value, function (index1, value1) {
-          update_ariables[index] += value1;
-
-        });
-
-  });
-
-  //export_data($xls_data_json,update_ariables);
-
-  function export_data($xls_data_json,update_ariables){
-    $("#button").click(function(){
-
-        $.ajax({
-            type: "POST",
-            url: 'xls.php',
-            data: {"xls":$xls_data_json,'total':update_ariables},
-            success: function(response)
-            {
-
-
-              var file = new Blob([response], {type: 'text/xls'});
-				    dlbtn.href = URL.createObjectURL(file);
-				     dlbtn.download = 'myfile.xls';
-          $( "#mine").click();
-                  //console.log(response);
-           }
-       });
-      });
-
-  }
-
-jQuery(".hours_percent").on("input", function() {
-   $vclass = $(this).attr('id');
-   $percent = $(this).val();   // how many percent
-   $total_hours = parseFloat($('.'+$vclass).attr( $vclass ));
-  $after_perc_hours = $total_hours * $percent / 100;   // after percent change data get
-   $('.'+$vclass).text($after_perc_hours);
-   $area_name = $('.'+$vclass).attr( 'area_name' ); // area name
-
-
-
-
-   $count = $('.'+$vclass).attr( 'count' );  // index xl array
-
-  
-   $jshon_index = $vclass.replace(/[^\d.-]/g, '');
-  // only fron data change calculation
-   $total_hours_json[$area_name][$jshon_index] = $after_perc_hours;
-   //var update_ariables  = {};
-   $.each($total_hours_json, function (index, value) {
-    update_ariables[index] = 0;
-         $.each(value, function (index1, value1) {
-          update_ariables[index] += value1;
-
-        });
-
-  });
-  $('.'+$area_name.replace(/\s/g, '')+'  b').text(update_ariables[$area_name]);
-
-
-
-
-  // Xls json data update
-   $xls_data_json[$count][$area_name][$jshon_index] = $after_perc_hours;
-   $xls_data_json[$count][$area_name]['percent'] = $percent;
-
-
-if($area_name === "Restaurant Floor"){
-  var res_tip = (1030*2/3)/update_ariables[$area_name];
-  console.log(res_tip);
-
-}else if($area_name === "Kitchen"){
-  var kitchen_tip = (1030*1/3)/5;
-  console.log(kitchen_tip);
-
-}
-
-
-});
-export_data($xls_data_json,update_ariables);
-
-
-
-
-</script>
