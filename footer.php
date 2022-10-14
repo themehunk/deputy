@@ -3,6 +3,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
+$("#level-select,#area-select").click(function(){
+document.getElementById("employee-select").setAttribute("disabled", "disabled");
+
+// button disabled remove
+document.getElementById("filter").removeAttribute("disabled");
+document.getElementById("weight_filter").removeAttribute("disabled");
+
+
+});
+
+$("#employee-select").click(function(){
+document.getElementById("level-select").setAttribute("disabled", "disabled");
+document.getElementById("area-select").setAttribute("disabled", "disabled");
+// button disabled remove
+document.getElementById("filter").removeAttribute("disabled");
+document.getElementById("weight_filter").removeAttribute("disabled");
+
+});
+
+$("#clear_filter").click(function(){
+
+
+  document.getElementById("level-select").removeAttribute("disabled");
+  document.getElementById("employee-select").removeAttribute("disabled");
+  document.getElementById("area-select").removeAttribute("disabled");
+  document.getElementById("area-select").value = "";
+  document.getElementById("level-select").value = "";
+  document.getElementById("employee-select").value = "";
+  $( "td" ).removeClass( "red" );
+});
+
+var tiparr=[];
+var bonusarr=[];
+var tip_amount = $('#tip_amount').data('tip');
+var  bonus_amount = $('#bonus_amount').data('bonus');
+$('.sum_emp_total_time').each(function(i,item){
+  let tip_total = $(item).data('bonustip')*tip_amount;
+  let bonus_total = $(item).data('bonustip')*bonus_amount;
+
+  $(this).text(tip_total.toFixed(2));
+  $(this).next().text(bonus_total.toFixed(2));
+  tiparr.push(tip_total);
+  bonusarr.push(bonus_total);
+})
+
+ const sum_tip = tiparr.reduce((partialSum, a) => partialSum + a, 0);
+ const sum_bonus = bonusarr.reduce((partialSum, a) => partialSum + a, 0);
+ $('.sum-tip').text(sum_tip.toFixed(0));
+ $('.sum-bonus').text(sum_bonus.toFixed(0));
+
+
      $total_hours_json = JSON.parse($('.total_hours_count').attr( 'total_hours' ));
      $xls_data_json = JSON.parse($('.total_hours_count').attr( 'xls_data' ));
 
@@ -40,16 +91,52 @@
 
   }
 
-jQuery(".hours_percent").on("input", function() {
+  function apiSave($area_name,$employee,$percent){
+
+    var request = $.ajax({
+  url: "save.php",
+  method: "POST",
+  data: { area_name : $area_name,employee:$employee,percent:$percent },
+  dataType: "html"
+});
+ 
+request.done(function( response ) {
+//console.table(response);
+
+});
+ 
+request.fail(function( jqXHR, textStatus ) {
+  console.log( "Request failed: " + textStatus );
+});
+
+  }
+
+  jQuery(".chnage_percent").click(function() {
+    jQuery(this).find('.hours_percent').attr( 'type','text' );
+    
+    
+  });
+
+jQuery(".hours_percent").change(function() {
+  jQuery('.hours_percent').attr( 'type','hidden' );
+
    $vclass = $(this).attr('id');
    $percent = $(this).val();   // how many percent
    $total_hours = parseFloat($('.'+$vclass).attr( $vclass ));
   $after_perc_hours = $total_hours * $percent / 100;   // after percent change data get
-   $('.'+$vclass).text($after_perc_hours);
+
+//get out of here
+if ($total_hours<1){
+  return;
+}
+
+jQuery(this).next().text($percent);
+
+
+   $('.'+$vclass).text($after_perc_hours.toFixed(2));
   var $area_name = $('.'+$vclass).attr( 'area_name' ); // area name
-
-
-
+  var $employee = $('.'+$vclass).attr( 'employee' );
+  apiSave($area_name,$employee,$percent);
 
    $count = $('.'+$vclass).attr( 'count' );  // index xl array
 
@@ -66,7 +153,7 @@ jQuery(".hours_percent").on("input", function() {
         });
 
   });
-  $('.'+$area_name.replace(/\s/g, '')+'  b').text(update_ariables[$area_name]);
+  $('.'+$area_name.replace(/\s/g, '')+'  b').text(update_ariables[$area_name].toFixed(2));
 
 
 
@@ -78,11 +165,9 @@ jQuery(".hours_percent").on("input", function() {
 
 if($area_name === "Restaurant Floor"){
   var res_tip = (1030*2/3)/update_ariables[$area_name];
-  console.log(res_tip);
 
 }else if($area_name === "Kitchen"){
   var kitchen_tip = (1030*1/3)/5;
-  console.log(kitchen_tip);
 
 }
 
@@ -111,6 +196,46 @@ $("#get_data").click(function(){
 });
 
 
+$("#weight_filter").mouseover( async function(event){
+  console.log(event);
+
+  await $(".formfilter").attr('id', 'filterdata');
+});
+
+$("#filter").mouseover( async function(event){
+  console.log(event);
+
+  await $(".formfilter").attr('id', 'filteraj');
+});
+
+
+$("#filteraj").submit(function(event){
+  if($("#filteraj").length){
+
+  console.log(event.target);
+  let areaSelect = $( "#filteraj" );
+  event.preventDefault();
+
+  $.ajax({
+        type: "POST",
+        url: "ajax.php",
+        data: areaSelect.serialize(), // serializes the form's elements.
+        success: function(data)
+        {
+          $( "td" ).removeClass( "red" );
+
+       //   console.log(data);
+        //    $("#testing-data").html(data);
+        var $json =  JSON.parse(data);
+         for (var i=0; i < $json.length; i++) {
+          $("."+$json[i]).addClass("red");
+          }
+
+        }
+    });
+
+}
+  });
 
 
 
